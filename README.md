@@ -8,13 +8,13 @@ To run the project, install all necessary requirements, given in `requirements.t
 > `python main.py`
 
 The following commandline options are available:
-option | description
---- | ---
-  -h, --help           | show help message and exit
-  --optimizer OPTIMIZER, -o OPTIMIZER | Type of optimizer to use. Options: backprop, ibfgs (default: backprop)
-  --seed SEED, -s SEED | Random seed (default: 5000)
-  --nsteps NSTEPS, -n NSTEPS | Number of iterations to compute. Default is 100000 for backprop and 10 for ibfgs
-  --visualize, -v      | Visualize training progress
+| option | description |
+| --- | --- |
+| -h, --help           | show help message and exit |
+|  --optimizer OPTIMIZER, -o OPTIMIZER | Type of optimizer to use. Options: backprop, ibfgs (default: backprop) |
+|  --seed SEED, -s SEED | Random seed (default: 5000) |
+|  --nsteps NSTEPS, -n NSTEPS | Number of iterations to compute. Default is 100000 for backprop and 10 for ibfgs |
+|  --visualize, -v      | Visualize training progress |
 
 # Known issues
 
