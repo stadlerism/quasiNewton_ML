@@ -8,6 +8,7 @@ To run the project, install all necessary requirements, given in `requirements.t
 `> python main.py`
 
 The following commandline options are available:
+
 | option                               | description                                                                      |
 | ------------------------------------ | -------------------------------------------------------------------------------- |
 | -h, --help                           | show help message and exit                                                       |
