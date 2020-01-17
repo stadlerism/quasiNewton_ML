@@ -9,6 +9,7 @@ def plot_results(model, train_src, continuous=False):
         x1.flatten(),
         x2.flatten()
     ])
+    
     results = model(samples)
     if not continuous:
         r = (results[0,:] > results[1,:]).astype(float)

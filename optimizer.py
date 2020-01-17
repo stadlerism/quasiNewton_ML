@@ -18,14 +18,20 @@ class InverseBFGS:
         fx = f(x)
         gfx = gf(fx)
         lfx = loss(fx)
-        # self.update(gfx)
+        self.update(gfx)
         s = self.get_dir(gfx)
         sigma = self.linesearch(x, f, gf, s, lfx, gfx, loss)
         self._d = sigma*s
         return sigma*s
 
     def get_dir(self, gfx):
-        return -np.dot(self._matrix, gfx)
+        s = -np.dot(self._matrix, gfx)
+        if np.dot(s.flatten(), gfx.flatten()) >= 0:
+            print("non-newton step")
+            s = -gfx
+        else:
+            print("newton step")
+        return s
 
     def update(self, gfx):
         # Inverse BFGS update
@@ -35,13 +41,13 @@ class InverseBFGS:
                 raise Exception("Implementation error: No step has been completed between calls of update.")
             else:
                 d = self._d
-                y = self._prev_gfx - gfx
+                y = gfx - self._prev_gfx
                 z = d - np.dot(self._matrix, y)
                 zdT = np.dot(z, d.transpose())
-                dTy = np.dot(y.transpose(), d)
-                zTy = np.dot(z.transpose(), y)
+                dTy = np.dot(d.flatten(), y.flatten())
+                zTy = np.dot(z.flatten(), y.flatten())
                 ddT = np.dot(d, d.transpose())
-                self._matrix += (zdT + zdT.transpose())/dTy - zTy/(dTy**2)*ddT
+                self._matrix += (zdT+zdT.transpose())/dTy - zTy/(dTy**2)*ddT
         
         self._d = None
         self._prev_gfx = gfx
