@@ -46,10 +46,13 @@ class LinearModel:
     def train_step_optimizer(self, x, target, optimizer):
         res = self(x)
 
+        def tmp_loss(res):
+            return self._loss(res, target)
+
         def get_grad_tmp(res):
             return self.get_full_grad(res, target)
 
-        full_update = optimizer.step(x, self.__call__, get_grad_tmp)
+        full_update = optimizer.step(x, self.__call__, get_grad_tmp, tmp_loss)
         updates = self.full_dir_to_parts(full_update)
         for layer, u in zip(self._layers, updates):
             layer.apply_update(u[0], u[1])

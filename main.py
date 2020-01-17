@@ -56,7 +56,7 @@ for i in tqdm(range(n_steps)):
 
 
 # plot training progress
-plt.semilogy(range(len(losses)), losses)
+plt.semilogy(losses)
 plt.show()
 
 # plot training results

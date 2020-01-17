@@ -14,13 +14,13 @@ class InverseBFGS:
         self._d = None
         self._prev_gfx = None
 
-    def step(self, x, f, gf):
+    def step(self, x, f, gf, loss):
         fx = f(x)
         gfx = gf(fx)
+        lfx = loss(fx)
         # self.update(gfx)
         s = self.get_dir(gfx)
-        sigma = self.linesearch(x, f, gf, s, fx, gfx)
-        sigma = 0.05
+        sigma = self.linesearch(x, f, gf, s, lfx, gfx, loss)
         self._d = sigma*s
         return sigma*s
 
@@ -46,60 +46,56 @@ class InverseBFGS:
         self._d = None
         self._prev_gfx = gfx
 
-    def PW1(self, fx, fx_step, gfx, s, sigma):
-        return (fx_step - fx <= sigma * self._gamma * np.dot(gfx.flatten(), s.flatten())).all()
+    def PW1(self, lfx, lfx_step, gfx, s, sigma):
+        return (lfx_step - lfx <= sigma * self._gamma * np.dot(gfx.flatten(), s.flatten())).all()
 
     def PW2(self, gfx, gfx_step, s):
         return (np.dot(gfx_step.flatten(), s.flatten()) >= self._eta * np.dot(gfx.flatten(), s.flatten()))
 
-    def linesearch(self, x, f, gf, s, fx, gfx):
+    def linesearch(self, x, f, gf, s, lfx, gfx, loss):
         # calculate step length using Powell-Wolfe criteria
         # Note: f is to be optimized; x is just the input to f and not to be optimized!
         sigma = np.float(1.0)
         fx_step = f(x, sigma, s)
-        if self.PW1(fx, fx_step, gfx, s, sigma):
-            print("step 1")
+        lfx_step = loss(fx_step)
+        if self.PW1(lfx, lfx_step, gfx, s, sigma):
             gfx_step = gf(fx_step)
             if self.PW2(gfx, gfx_step, s):
-                print("done")
                 # we already got a solution! --> return
                 return sigma
 
-            print("step 2")
             # solution to PW1, but not to PW2
             # --> increase sigma_max until we no longer satisfy PW1
             sigma_max = np.float(2.0)
             fx_step = f(x, sigma_max, s)
-            while self.PW1(fx, fx_step, gfx, s, sigma_max):
+            lfx_step = loss(fx_step)
+            while self.PW1(lfx, lfx_step, gfx, s, sigma_max):
                 sigma_max *= 2
                 fx_step = f(x, sigma_max, s)
+                lfx_step = loss(fx_step)
             sigma_min = sigma_max / 2
         else:
             # no solution to PW1
             # --> decrease sigma_min until we satisfy PW1
-            print("step 3")
             sigma_min = np.float(1/2)
             fx_step = f(x, sigma_min, s)
-            while not self.PW1(fx, fx_step, gfx, s, sigma_min):
+            lfx_step = loss(fx_step)
+            while not self.PW1(lfx, lfx_step, gfx, s, sigma_min):
                 sigma_min /= 2
                 fx_step = f(x, sigma_min, s)
+                lfx_step = loss(fx_step)
             sigma_max = sigma_min * 2
-
-        # if sigma_min < 1e-50:
-        #     return np.float(1e-50)
-
-        print("step 4")
 
         # we got an interval [sigma_min, sigma_max] containing a solution
         # --> shrink interval until we find one
-        print(sigma_min)
-        return sigma_min
         fx_step = f(x, sigma_min, s)
+        lfx_step = loss(fx_step)
         gfx_step = gf(fx_step)
         while not self.PW2(gfx, gfx_step, s):
             sigma = (sigma_min + sigma_max) / 2
             fx_step = f(x, sigma, s)
-            if self.PW1(fx, fx_step, gfx, s, sigma):
+            lfx_step = loss(fx_step)
+            if self.PW1(lfx, lfx_step, gfx, s, sigma):
                 sigma_min = sigma
                 gfx_step = gf(fx_step)
             else:

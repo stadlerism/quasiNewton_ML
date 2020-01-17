@@ -3,7 +3,7 @@ import numpy as np
 class LinearLayer1D:
     def __init__(self, n):
         self._n = n
-        self._d = np.random.randn(n,1)
+        self._d = np.ones((n,1))#np.random.randn(n,1)
         self._activation = None
 
     def __call__(self, x, *args, **kwargs):
@@ -26,11 +26,11 @@ class LinearLayer1D:
 
     def backprop(self, grad, get_grad=False):
         new_grad = self._d * grad
-        self._d_grad = grad * self._activation
+        d_grad = grad * self._activation
         if not get_grad:
             return new_grad
         else:
-            return new_grad, (self._d, np.zeros((0,0)))
+            return new_grad, (d_grad, np.zeros((0,0)))
 
     def apply_update(self, dd, *args, **kwargs):
         self._d += dd
@@ -44,8 +44,6 @@ class LinearLayer:
         self._w = np.random.randn(n_out, n_in)
         self._b = np.random.randn(n_out, 1)
         self._activation = None
-        self._w_grad = None
-        self._b_grad = None
 
     def __call__(self, x, *args, **kwargs):
         return self.forward(x, *args, **kwargs)
@@ -69,12 +67,12 @@ class LinearLayer:
 
     def backprop(self, grad, get_grad=False):
         new_grad = np.matmul(self._w.transpose(), grad)
-        self._w_grad = np.matmul(grad, self._activation.transpose())
-        self._b_grad = np.average(grad, axis=1).reshape(-1,1)
+        w_grad = np.matmul(grad, self._activation.transpose())
+        b_grad = np.average(grad, axis=1).reshape(-1,1)
         if not get_grad:
             return new_grad
         else:
-            return new_grad, (self._w_grad, self._b_grad)
+            return new_grad, (w_grad, b_grad)
 
     def apply_update(self, wd, bd):
         self._w += wd
