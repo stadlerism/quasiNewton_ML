@@ -19,4 +19,4 @@ The following commandline options are available:
 
 # Known issues
 
-* The Powell-Wolfe linesearch algorithm does not terminate.
+* The BFGS update yields unusable results
