@@ -13,3 +13,10 @@ class SoftMax:
     def __call__(self, x):
         exp_x = np.exp(x)
         return exp_x / exp_x.sum()
+
+class Identity:
+    def __call__(self, x):
+        return x
+    
+    def derivative(self, x):
+        return np.ones(x.shape)

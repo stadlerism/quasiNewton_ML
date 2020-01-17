@@ -1,7 +1,7 @@
 import numpy as np
 
-from layers import LinearLayer, ActivatedLayer
-from activation import Sigmoid, SoftMax
+from layers import LinearLayer, ActivatedLayer, LinearLayer1D
+from activation import Sigmoid, SoftMax, Identity
 from loss import L2Loss
 
 class LinearModel:
@@ -95,3 +95,16 @@ class LinearModel:
             ))
             idx += size_w + size_b
         return updates
+
+class TestModel(LinearModel):
+    # Model to test correctness of algorithms
+    # will only return the vector stored in linearLayer multiplied elementwise with the input
+    def __init__(self, n, lr=0.05, loss=L2Loss()):
+        identity = Identity()
+        self._layers = []
+        self._lr = lr
+
+        linearLayer = LinearLayer1D(n)
+        self._layers.append(ActivatedLayer(linearLayer, identity))
+
+        self._loss = loss

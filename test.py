@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import argparse
 from tqdm import tqdm
 
-from model import LinearModel
+from model import TestModel
 from loss import L2Loss
 from optimizer import InverseBFGS
 from utils import plot_results
@@ -18,26 +18,23 @@ args = parser.parse_args()
 np.random.seed(args.seed)
 
 loss = L2Loss()
-model = LinearModel(widths=[2,2,3,2], lr=0.05, loss=loss)
+
+n = 23
+model = TestModel(n, lr=0.05, loss=loss)
+
 optimizer = None
 if args.optimizer == 'ibfgs':
     n_steps = 100
-    batch_size = 10
+    batch_size = 1
     optimizer = InverseBFGS(nparams=model.nparams, gamma=0.001, eta=0.9)
 else:
     n_steps = 10000
-    batch_size = 10
+    batch_size = 1
 if not args.nsteps is None:
     n_steps = args.nsteps
 
-train_src = np.array([
-    [0.1, 0.3, 0.1, 0.6, 0.4, 0.6, 0.5, 0.9, 0.4, 0.7],
-    [0.1, 0.4, 0.5, 0.9, 0.2, 0.3, 0.6, 0.2, 0.4, 0.6]
-])
-train_dst = np.array([
-    [1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
-])
+train_src = np.ones((n,1))
+train_dst = np.zeros((n,1))
 
 losses = []
 for i in tqdm(range(n_steps)):
@@ -50,14 +47,14 @@ for i in tqdm(range(n_steps)):
         res = model.train_step(x, target)
     total_loss = loss(res, target)
     losses.append(total_loss)
-    if args.visualize and i%(n_steps//5)==0:
-        plot_results(model, train_src, continuous=True)
+    # if args.visualize and i%(n_steps//5)==0:
+    #     plot_results(model, train_src, continuous=True)
 
-
+print(model(train_src).transpose())
 
 # plot training progress
 plt.semilogy(range(len(losses)), losses)
 plt.show()
 
 # plot training results
-plot_results(model, train_src)
+# plot_results(model, train_src)

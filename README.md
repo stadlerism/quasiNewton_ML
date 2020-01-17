@@ -4,8 +4,8 @@ The aim of this project is to implement a simple neural net which is trained usi
 
 # Getting started
 
-To run the project, install all necessary requirements, given in `requirements.txt` in a python environment. The program can then be run with the command
-> `python main.py`
+To run the project, install all necessary requirements, given in `requirements.txt` in a python environment. The program can then be run with the command  
+`> python main.py`
 
 The following commandline options are available:
 | option | description |
