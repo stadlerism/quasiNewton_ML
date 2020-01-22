@@ -27,7 +27,7 @@ if args.optimizer == 'ibfgs':
     n_steps = 100
     batch_size = 1
     optimizer = InverseBFGS(nparams=model.nparams, gamma=0.0001, eta=0.9)
-if args.optimizer == 'armijo':
+elif args.optimizer == 'armijo':
     n_steps = 100
     batch_size = 1
     optimizer = SteepDescent(nparams=model.nparams, beta=1/2, gamma=0.0001)

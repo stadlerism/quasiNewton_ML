@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 from model import LinearModel
 from loss import L2Loss
-from optimizer import InverseBFGS
+from optimizer import InverseBFGS, SteepDescent, IterationCompleteException
 from utils import plot_results
 
 parser = argparse.ArgumentParser(description='Example of a simple neural network.')
@@ -24,6 +24,10 @@ if args.optimizer == 'ibfgs':
     n_steps = 100
     batch_size = 10
     optimizer = InverseBFGS(nparams=model.nparams, gamma=0.001, eta=0.9)
+elif args.optimizer == 'armijo':
+    n_steps = 100
+    batch_size = 10
+    optimizer = SteepDescent(nparams=model.nparams, beta=1/2, gamma=0.0001)
 else:
     n_steps = 10000
     batch_size = 10
@@ -45,7 +49,10 @@ for i in tqdm(range(n_steps)):
     x = train_src[:,batch]
     target = train_dst[:,batch]
     if not optimizer is None:
-        res = model.train_step_optimizer(x, target, optimizer)
+        try:
+            res = model.train_step_optimizer(x, target, optimizer)
+        except IterationCompleteException:
+            break
     else:
         res = model.train_step(x, target)
     total_loss = loss(res, target)
