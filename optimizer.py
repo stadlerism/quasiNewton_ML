@@ -1,5 +1,7 @@
 import numpy as np
 
+class IterationCompleteException(Exception):
+    pass
 
 class InverseBFGS:
     def __init__(self, nparams, gamma=0.4, eta=0.9, M_0 = None):
@@ -27,10 +29,7 @@ class InverseBFGS:
     def get_dir(self, gfx):
         s = -np.dot(self._matrix, gfx)
         if np.dot(s.flatten(), gfx.flatten()) >= 0:
-            print("non-newton step")
             s = -gfx
-        else:
-            print("newton step")
         return s
 
     def update(self, gfx):
@@ -43,8 +42,11 @@ class InverseBFGS:
                 d = self._d
                 y = gfx - self._prev_gfx
                 z = d - np.dot(self._matrix, y)
-                zdT = np.dot(z, d.transpose())
                 dTy = np.dot(d.flatten(), y.flatten())
+                if np.abs(dTy) < 1e-100:
+                    raise  IterationCompleteException()
+
+                zdT = np.dot(z, d.transpose())
                 zTy = np.dot(z.flatten(), y.flatten())
                 ddT = np.dot(d, d.transpose())
                 self._matrix += (zdT+zdT.transpose())/dTy - zTy/(dTy**2)*ddT
@@ -53,7 +55,7 @@ class InverseBFGS:
         self._prev_gfx = gfx
 
     def PW1(self, lfx, lfx_step, gfx, s, sigma):
-        return (lfx_step - lfx <= sigma * self._gamma * np.dot(gfx.flatten(), s.flatten())).all()
+        return (lfx_step - lfx <= sigma * self._gamma * np.dot(gfx.flatten(), s.flatten()))
 
     def PW2(self, gfx, gfx_step, s):
         return (np.dot(gfx_step.flatten(), s.flatten()) >= self._eta * np.dot(gfx.flatten(), s.flatten()))
@@ -111,4 +113,35 @@ class InverseBFGS:
         return sigma_min
 
             
-    
+class SteepDescent(InverseBFGS):
+    def __init__(self, nparams, beta=1/2, gamma=0.4):
+        M_0 = np.zeros((0))
+        eta = 0
+        self._beta = beta
+        super(SteepDescent, self).__init__(nparams, gamma, eta, M_0)
+
+    def step(self, x, f, gf, loss):
+        fx = f(x)
+        gfx = gf(fx)
+        lfx = loss(fx)
+        s = self.get_dir(gfx)
+        sigma = self.linesearch(x, f, gf, s, lfx, gfx, loss)
+        self._d = sigma*s
+        return sigma*s
+
+    def linesearch(self, x, f, gf, s, lfx, gfx, loss):
+        # calculate step length using Powell-Wolfe criteria
+        # Note: f is to be optimized; x is just the input to f and not to be optimized!
+        sigma = np.float(1.0)
+        fx_step = f(x, sigma, s)
+        lfx_step = loss(fx_step)
+        # --> decrease sigma_min until we satisfy PW1
+        while not self.PW1(lfx, lfx_step, gfx, s, sigma):
+            sigma *= self._beta
+            fx_step = f(x, sigma, s)
+            lfx_step = loss(fx_step)
+
+        return sigma
+
+    def get_dir(self, gfx):
+        return -gfx

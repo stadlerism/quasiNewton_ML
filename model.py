@@ -102,12 +102,12 @@ class LinearModel:
 class TestModel(LinearModel):
     # Model to test correctness of algorithms
     # will only return the vector stored in linearLayer multiplied elementwise with the input
-    def __init__(self, n, lr=0.05, loss=L2Loss()):
+    def __init__(self, n, lr=0.05, loss=L2Loss(), d=None):
         identity = Identity()
         self._layers = []
         self._lr = lr
 
-        linearLayer = LinearLayer1D(n)
+        linearLayer = LinearLayer1D(n, d)
         self._layers.append(ActivatedLayer(linearLayer, identity))
 
         self._loss = loss

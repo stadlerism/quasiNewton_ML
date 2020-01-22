@@ -1,9 +1,12 @@
 import numpy as np
 
 class LinearLayer1D:
-    def __init__(self, n):
+    def __init__(self, n, d=None):
         self._n = n
-        self._d = np.ones((n,1))#np.random.randn(n,1)
+        if d is None:
+            self._d = np.ones((n,1))#np.random.randn(n,1)
+        else:
+            self._d = d
         self._activation = None
 
     def __call__(self, x, *args, **kwargs):
