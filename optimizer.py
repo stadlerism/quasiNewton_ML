@@ -27,6 +27,8 @@ class InverseBFGS:
         return sigma*s
 
     def get_dir(self, gfx):
+        if np.linalg.norm(gfx) < 5e-15:
+            raise  IterationCompleteException()
         s = -np.dot(self._matrix, gfx)
         if np.dot(s.flatten(), gfx.flatten()) >= 0:
             s = -gfx
@@ -144,4 +146,7 @@ class SteepDescent(InverseBFGS):
         return sigma
 
     def get_dir(self, gfx):
+        if np.linalg.norm(gfx) < 5e-15:
+            # print(np.linalg.norm(gfx))
+            raise  IterationCompleteException()
         return -gfx

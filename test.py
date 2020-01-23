@@ -4,7 +4,7 @@ import argparse
 from tqdm import tqdm
 
 from model import TestModel
-from loss import Rosenbrock
+from loss import Rosenbrock, Beale
 from optimizer import InverseBFGS, SteepDescent, IterationCompleteException
 from utils import plot_results
 
@@ -17,10 +17,12 @@ args = parser.parse_args()
 
 np.random.seed(args.seed)
 
-loss = Rosenbrock()
+# loss = Rosenbrock() # optimum: (1,1)
+loss = Beale() # optimum: (3, 0.5)
 
 n = 2
-model = TestModel(n, lr=0.00001, loss=loss, d=np.array([[-1.2],[1]]))
+model = TestModel(n, lr=0.00001, loss=loss, d=np.array([[0.0],[0.0]]))
+# model = TestModel(n, lr=0.00001, loss=loss, d=np.array([[-1.2],[1]]))
 
 optimizer = None
 if args.optimizer == 'ibfgs':
@@ -41,21 +43,24 @@ train_src = np.ones((n,1))
 train_dst = np.zeros((n,1))
 
 losses = []
-for i in tqdm(range(n_steps)):
-    batch = np.random.choice(range(train_src.shape[1]), batch_size, replace=False)
-    x = train_src[:,batch]
-    target = train_dst[:,batch]
-    if not optimizer is None:
-        try:
-            res = model.train_step_optimizer(x, target, optimizer)
-        except IterationCompleteException:
-            break
-    else:
-        res = model.train_step(x, target)
-    total_loss = loss(res, target)
-    losses.append(total_loss)
-    # if args.visualize and i%(n_steps//5)==0:
-    #     plot_results(model, train_src, continuous=True)
+try:
+    for i in tqdm(range(n_steps)):
+        batch = np.random.choice(range(train_src.shape[1]), batch_size, replace=False)
+        x = train_src[:,batch]
+        target = train_dst[:,batch]
+        if not optimizer is None:
+            try:
+                res = model.train_step_optimizer(x, target, optimizer)
+            except IterationCompleteException:
+                break
+        else:
+            res = model.train_step(x, target)
+        total_loss = loss(res, target)
+        losses.append(total_loss)
+        # if args.visualize and i%(n_steps//5)==0:
+        #     plot_results(model, train_src, continuous=True)
+except KeyboardInterrupt:
+    pass
 
 print(i)
 print(model(train_src))
