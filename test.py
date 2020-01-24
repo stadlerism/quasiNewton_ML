@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 from model import TestModel
 from loss import Rosenbrock, Beale
-from optimizer import InverseBFGS, DescentMethod, BarzilaiBorwein
+from optimizer import BFGS, InverseBFGS, DescentMethod, BarzilaiBorwein
 from exceptions import IterationCompleteException
 from utils import plot_results
 
@@ -29,6 +29,8 @@ model = TestModel(n, lr=0.00001, loss=loss, d=np.array([[-1.2],[1]]))
 optimizer = None
 if args.optimizer == 'ibfgs':
     optimizer = InverseBFGS(nparams=model.nparams, gamma=0.0001, eta=0.9)
+elif args.optimizer == 'bfgs':
+    optimizer = BFGS(nparams=model.nparams, gamma=0.0001, eta=0.9)
 elif args.optimizer == 'armijo':
     optimizer = DescentMethod(nparams=model.nparams, beta=1/2, gamma=0.0001)
 elif args.optimizer == 'bbv1' or args.optimizer == 'barzilaiborweinv1':

@@ -43,9 +43,9 @@ class DescentMethod(BaseOptimizer):
         return sigma*d
 
 
-class InverseQuasiNewton(BaseOptimizer):
+class NewtonType(BaseOptimizer):
     def __init__(self, nparams, *args, M_0 = None, **kwargs):
-        super(InverseQuasiNewton, self).__init__(nparams, *args, **kwargs)
+        super(NewtonType, self).__init__(nparams, *args, **kwargs)
         if M_0 is None:
             self._matrix = np.identity(nparams)
         else:
@@ -65,12 +65,7 @@ class InverseQuasiNewton(BaseOptimizer):
         return sigma*d
 
     def get_dir(self, gfx):
-        if np.linalg.norm(gfx) < 5e-15:
-            raise  IterationCompleteException()
-        d = -np.dot(self._matrix, gfx)
-        if np.dot(d.flatten(), gfx.flatten()) >= 0:
-            d = -gfx
-        return d
+        raise NotImplementedError()
 
     def update(self, *args, **kwargs):
         raise NotImplementedError()
@@ -78,6 +73,21 @@ class InverseQuasiNewton(BaseOptimizer):
     def linesearch(self, *args, **kwargs):
         raise NotImplementedError()
 
+
+class QuasiNewton(NewtonType):
+    def get_dir(self, gfx):
+        if np.linalg.norm(gfx) < 5e-15:
+            raise  IterationCompleteException()
+        d = -np.linalg.solve(self._matrix, gfx)
+        return d
+
+
+class InverseQuasiNewton(NewtonType):
+    def get_dir(self, gfx):
+        if np.linalg.norm(gfx) < 5e-15:
+            raise  IterationCompleteException()
+        d = -np.dot(self._matrix, gfx)
+        return d
 
 
 class BarzilaiBorwein(DescentMethod):
@@ -131,6 +141,39 @@ class InverseBFGS(InverseQuasiNewton):
                 zTy = np.dot(z.flatten(), y.flatten())
                 ssT = np.dot(s, s.transpose())
                 self._matrix += (zsT+zsT.transpose())/sTy - zTy/(sTy**2)*ssT
+        
+        self._d = None
+        self._prev_gfx = gfx
+
+    def linesearch(self, x, f, gf, d, lfx, gfx, loss):
+        return PowellWolfeSearch(x, f, gf, d, lfx, gfx, loss, gamma=self._gamma, eta=self._eta)
+
+
+
+class BFGS(QuasiNewton):
+    def __init__(self, nparams, *args, gamma=0.4, eta=0.9, M_0 = None, **kwargs):
+        super(BFGS, self).__init__(nparams, *args, M_0=M_0, **kwargs)
+        self._gamma = gamma
+        self._eta = eta
+
+    def update(self, gfx):
+        # Inverse BFGS update
+        # only done once a step has been completed
+        if not self._prev_gfx is None:
+            if self._s is None:
+                raise Exception("Implementation error: No step has been completed between calls of update.")
+            else:
+                s = self._s
+                y = gfx - self._prev_gfx
+                Hs = np.dot(self._matrix, s)
+                sTy = np.dot(s.flatten(), y.flatten())
+                sTHs = np.dot(s.flatten(), Hs.flatten())
+                if np.abs(sTy) < 1e-100 or np.abs(sTHs) < 1e-100:
+                    raise  IterationCompleteException()
+
+                HssTHT = np.dot(Hs, Hs.transpose())
+                yyT = np.dot(y, y.transpose())
+                self._matrix += yyT / sTy - HssTHT / sTHs
         
         self._d = None
         self._prev_gfx = gfx
