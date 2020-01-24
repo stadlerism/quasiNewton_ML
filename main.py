@@ -10,11 +10,11 @@ from exceptions import IterationCompleteException
 from utils import plot_results
 
 parser = argparse.ArgumentParser(description='Example of a simple neural network.')
-parser.add_argument('--optimizer', '-o', default='backprop', help='Type of optimizer to use. Options: backprop, ibfgs (default: %(default)s)')
+parser.add_argument('--optimizer', '-o', default='backprop', help='Type of optimizer to use. Options: backprop, bfgs, ibfgs, armijo, bbv1, bbv2, bbv3 (default: %(default)s)')
 parser.add_argument('--seed', '-s', default=5000, type=int, help='Random seed (default: %(default)s)')
 parser.add_argument('--nsteps', '-n', default=1000, type=int, help='Number of iterations to compute. (default: %(default)s)')
 parser.add_argument('--visualize', '-v', action='store_true', help='Visualize training progress')
-parser.add_argument('--batchsize', '-b', default=10 , help='Batch size (default: %(default)s)')
+parser.add_argument('--batchsize', '-b', default=10 , help='Batch size for training the network (default: %(default)s)')
 args = parser.parse_args()
 
 np.random.seed(args.seed)

@@ -12,10 +12,11 @@ The following commandline options are available:
 | option                               | description                                                                      |
 | ------------------------------------ | -------------------------------------------------------------------------------- |
 | -h, --help                           | show help message and exit                                                       |
-|  --optimizer OPTIMIZER, -o OPTIMIZER | Type of optimizer to use. Options: backprop, ibfgs, armijo (default: backprop)           |
+|  --optimizer OPTIMIZER, -o OPTIMIZER | Type of optimizer to use. Options: <br>* backprop (default) <br>* bfgs <br>* ibfgs <br>* armijo <br>* bbv1 (Barzilai-Borwein v1) <br>* bbv2 (Barzilai-Borwein v2) <br>* bbv3 (Barzilai-Borwein alternating)           |
 |  --seed SEED, -s SEED                | Random seed (default: 5000)                                                      |
 |  --nsteps NSTEPS, -n NSTEPS          | Number of iterations to compute. Default is 10000 for backprop, 3000 for armijo and 100 for ibfgs |
 |  --visualize, -v                     | Visualize training progress                                                      |
+|  --batchsize, -b                     | Batch size for training the network (default: 10)
 
 # Testing
 
