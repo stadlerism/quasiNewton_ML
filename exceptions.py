@@ -1,0 +1,3 @@
+
+class IterationCompleteException(Exception):
+    pass

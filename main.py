@@ -5,7 +5,8 @@ from tqdm import tqdm
 
 from model import LinearModel
 from loss import L2Loss
-from optimizer import InverseBFGS, SteepDescent, BarzilaiBorwein, IterationCompleteException
+from optimizer import InverseBFGS, DescentMethod, BarzilaiBorwein
+from exceptions import IterationCompleteException
 from utils import plot_results
 
 parser = argparse.ArgumentParser(description='Example of a simple neural network.')
@@ -26,9 +27,13 @@ optimizer = None
 if args.optimizer == 'ibfgs':
     optimizer = InverseBFGS(nparams=model.nparams, gamma=0.0001, eta=0.9)
 elif args.optimizer == 'armijo':
-    optimizer = SteepDescent(nparams=model.nparams, beta=1/2, gamma=0.0001)
-elif args.optimizer == 'bb' or args.optimizer == 'barzilaiborwein':
-    optimizer = BarzilaiBorwein(nparams=model.nparams, beta=1/2, gamma=0.0001)
+    optimizer = DescentMethod(nparams=model.nparams, beta=1/2, gamma=0.0001)
+elif args.optimizer == 'bbv1' or args.optimizer == 'barzilaiborweinv1':
+    optimizer = BarzilaiBorwein(nparams=model.nparams, beta=1/2, gamma=0.0001, strategy='v1')
+elif args.optimizer == 'bbv2' or args.optimizer == 'barzilaiborweinv2':
+    optimizer = BarzilaiBorwein(nparams=model.nparams, beta=1/2, gamma=0.0001, strategy='v2')
+elif args.optimizer == 'bbv3' or args.optimizer == 'barzilaiborweinv3':
+    optimizer = BarzilaiBorwein(nparams=model.nparams, beta=1/2, gamma=0.0001, strategy='alt')
 
 batch_size = args.batchsize
 n_steps = args.nsteps
