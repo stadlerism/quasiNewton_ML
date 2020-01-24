@@ -8,8 +8,8 @@ def PW1(lfx, lfx_step, gfx, d, sigma, gamma):
 def PW2(gfx, gfx_step, d, eta):
     return (np.dot(gfx_step.flatten(), d.flatten()) >= eta * np.dot(gfx.flatten(), d.flatten()))
 
-def ArmijoSearch(x, f, gf, d, lfx, gfx, loss, beta=0.5, gamma=0.0001):
-    sigma = np.float(1.0)
+def ArmijoSearch(x, f, gf, d, lfx, gfx, loss, beta=0.5, gamma=0.0001, sigma_0 = np.float(1.0)):
+    sigma = sigma_0
     fx_step = f(x, sigma, d)
     lfx_step = loss(fx_step)
     # --> decrease sigma_min until we satisfy PW1
@@ -44,13 +44,7 @@ def PowellWolfeSearch(x, f, gf, d, lfx, gfx, loss, gamma=0.0001, eta=0.9):
     else:
         # no solution to PW1
         # --> decrease sigma_min until we satisfy PW1
-        sigma_min = np.float(1/2)
-        fx_step = f(x, sigma_min, d)
-        lfx_step = loss(fx_step)
-        while not PW1(lfx, lfx_step, gfx, d, sigma_min, gamma):
-            sigma_min /= 2
-            fx_step = f(x, sigma_min, d)
-            lfx_step = loss(fx_step)
+        sigma_min = ArmijoSearch(x, f, gf, d, lfx, gfx, loss, beta=0.5, gamma=gamma, sigma_0=np.float(0.5))
         sigma_max = sigma_min * 2
 
     # we got an interval [sigma_min, sigma_max] containing a solution
@@ -58,7 +52,7 @@ def PowellWolfeSearch(x, f, gf, d, lfx, gfx, loss, gamma=0.0001, eta=0.9):
     fx_step = f(x, sigma_min, d)
     lfx_step = loss(fx_step)
     gfx_step = gf(fx_step)
-    while not PW2(gfx, gfx_step, d, eta):
+    while not PW2(gfx, gfx_step, d, eta) and (sigma_max-sigma_min) > 1e-10:
         sigma = (sigma_min + sigma_max) / 2
         fx_step = f(x, sigma, d)
         lfx_step = loss(fx_step)

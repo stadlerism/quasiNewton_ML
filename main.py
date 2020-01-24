@@ -50,22 +50,24 @@ train_dst = np.array([
 ])
 
 losses = []
-for i in tqdm(range(n_steps)):
-    batch = np.random.choice(range(train_src.shape[1]), batch_size, replace=False)
-    x = train_src[:,batch]
-    target = train_dst[:,batch]
-    if not optimizer is None:
-        try:
-            res = model.train_step_optimizer(x, target, optimizer)
-        except IterationCompleteException:
-            break
-    else:
-        res = model.train_step(x, target)
-    total_loss = loss(res, target)
-    losses.append(total_loss)
-    if args.visualize and i%(n_steps//5)==0:
-        plot_results(model, train_src, continuous=True)
-
+try:
+    for i in tqdm(range(n_steps)):
+        batch = np.random.choice(range(train_src.shape[1]), batch_size, replace=False)
+        x = train_src[:,batch]
+        target = train_dst[:,batch]
+        if not optimizer is None:
+            try:
+                res = model.train_step_optimizer(x, target, optimizer)
+            except IterationCompleteException:
+                break
+        else:
+            res = model.train_step(x, target)
+        total_loss = loss(res, target)
+        losses.append(total_loss)
+        if args.visualize and i%(n_steps//5)==0:
+            plot_results(model, train_src, continuous=True)
+except KeyboardInterrupt:
+    pass
 
 
 # plot training progress

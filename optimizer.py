@@ -25,7 +25,7 @@ class DescentMethod(BaseOptimizer):
         self._line_search_kwargs = kwargs
 
     def get_dir(self, gfx):
-        if np.linalg.norm(gfx) < 5e-15:
+        if np.linalg.norm(gfx) < 1e-12:
             # print(np.linalg.norm(gfx))
             raise  IterationCompleteException()
         return -gfx
@@ -76,7 +76,7 @@ class NewtonType(BaseOptimizer):
 
 class QuasiNewton(NewtonType):
     def get_dir(self, gfx):
-        if np.linalg.norm(gfx) < 5e-15:
+        if np.linalg.norm(gfx) < 1e-12:
             raise  IterationCompleteException()
         d = -np.linalg.solve(self._matrix, gfx)
         return d
@@ -84,7 +84,7 @@ class QuasiNewton(NewtonType):
 
 class InverseQuasiNewton(NewtonType):
     def get_dir(self, gfx):
-        if np.linalg.norm(gfx) < 5e-15:
+        if np.linalg.norm(gfx) < 1e-12:
             raise  IterationCompleteException()
         d = -np.dot(self._matrix, gfx)
         return d
@@ -134,8 +134,9 @@ class InverseBFGS(InverseQuasiNewton):
                 y = gfx - self._prev_gfx
                 z = s - np.dot(self._matrix, y)
                 sTy = np.dot(s.flatten(), y.flatten())
-                if np.abs(sTy) < 1e-100:
-                    raise  IterationCompleteException()
+                if np.abs(sTy) < 1e-12:
+                    self._matrix = np.identity(self._nparams)
+                    return
 
                 zsT = np.dot(z, s.transpose())
                 zTy = np.dot(z.flatten(), y.flatten())
@@ -159,6 +160,7 @@ class BFGS(QuasiNewton):
     def update(self, gfx):
         # Inverse BFGS update
         # only done once a step has been completed
+        # return
         if not self._prev_gfx is None:
             if self._s is None:
                 raise Exception("Implementation error: No step has been completed between calls of update.")
@@ -168,12 +170,14 @@ class BFGS(QuasiNewton):
                 Hs = np.dot(self._matrix, s)
                 sTy = np.dot(s.flatten(), y.flatten())
                 sTHs = np.dot(s.flatten(), Hs.flatten())
-                if np.abs(sTy) < 1e-100 or np.abs(sTHs) < 1e-100:
-                    raise  IterationCompleteException()
+                if np.abs(sTy) < 1e-12 or np.abs(sTHs) < 1e-12:
+                    self._matrix = np.identity(self._nparams)
+                    return
 
                 HssTHT = np.dot(Hs, Hs.transpose())
                 yyT = np.dot(y, y.transpose())
                 self._matrix += yyT / sTy - HssTHT / sTHs
+
         
         self._d = None
         self._prev_gfx = gfx
