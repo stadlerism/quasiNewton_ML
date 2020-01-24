@@ -21,8 +21,8 @@ np.random.seed(args.seed)
 loss = Beale() # optimum: (3, 0.5)
 
 n = 2
-model = TestModel(n, lr=0.00001, loss=loss, d=np.array([[0.0],[0.0]]))
-# model = TestModel(n, lr=0.00001, loss=loss, d=np.array([[-1.2],[1]]))
+# model = TestModel(n, lr=0.00001, loss=loss, d=np.array([[0.0],[0.0]]))
+model = TestModel(n, lr=0.00001, loss=loss, d=np.array([[-1.2],[1]]))
 
 optimizer = None
 if args.optimizer == 'ibfgs':
