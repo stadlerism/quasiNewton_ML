@@ -25,8 +25,8 @@ class DescentMethod(BaseOptimizer):
         self._line_search_kwargs = kwargs
 
     def get_dir(self, gfx):
-        if np.linalg.norm(gfx) < 1e-12:
-            # print(np.linalg.norm(gfx))
+        if np.linalg.norm(gfx) < 1e-100:
+            print(np.linalg.norm(gfx))
             raise  IterationCompleteException()
         return -gfx
 

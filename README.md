@@ -23,6 +23,24 @@ The following commandline options are available:
 For testing optimization methods the script `test.py` has been provided.  
 In this file the loss function is minimized, with respect to the weights of an un-activated linear layer with entries only on the diagonal. Hance, for a model input of `[1,1]` in 2D the model simply returns the weights. This allows for the weights to be used as input for the given loss function (d.g. Rosenbrock) and hence the training is simply an optimization of the loss function with respect to the model weights (= model output for input `[1,1]` in 2D).
 
+# "Real world" example
+
+A small scale, real world example has also been implemented  for comparison of runtime. It can be run with the command  
+`> python world.py`
+
+Interesting and well working commandline argument arrangements are
+```
+> python world.py -v -n 16000
+> python world.py -v -n 2000 -o bbv2
+> python world.py -v -n 300 -o ibfgs
+```
+
+Cases where the convergence turns out to be rather slow are
+```
+> python world.py -v -n 500 -o armijo
+> python world.py -v -n 500 -o bfgs
+```
+
 # Known issues
 
 * iBFGS now works for Rosenbrock in 2D, but Armijo line search still stagnates for neural net
