@@ -69,19 +69,18 @@ def PowellWolfeSearch(x, f, gf, d, lfx, gfx, loss, gamma=0.0001, eta=0.9):
 def BarzilaiBorweinSearch(x, f, gf, d, lfx, gfx, loss, step_prev, gfx_prev, strategy=0, beta=0.5, gamma=0.0001):
     y = gfx - gfx_prev
     s = step_prev
-    
+
+    alpha = -1
     if strategy == 0:
         sTs = np.dot(s.flatten(), s.flatten())
-        if np.abs(sTs) < 1e-50:
-            raise IterationCompleteException()
-        sTy = np.dot(s.flatten(), y.flatten())
-        alpha = sTy / sTs
+        if np.abs(sTs) > 1e-30:
+            sTy = np.dot(s.flatten(), y.flatten())
+            alpha = sTy / sTs
     else:
         sTy = np.dot(s.flatten(), y.flatten())
-        if np.abs(sTy) < 1e-50:
-            raise IterationCompleteException()
-        yTy = np.dot(y.flatten(), y.flatten())
-        alpha = yTy / sTy
+        if np.abs(sTy) > 1e-30:
+            yTy = np.dot(y.flatten(), y.flatten())
+            alpha = yTy / sTy
     
     if alpha > 0:
         sigma = 1/alpha
