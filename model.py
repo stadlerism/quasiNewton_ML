@@ -11,7 +11,7 @@ class LinearModel:
         self._lr = lr
 
         for n_in, n_out in zip(widths[:-1], widths[1:]):
-            linearLayer = LinearLayer(n_in, n_out, bias=True)
+            linearLayer = LinearLayer(n_in, n_out, bias=True, scale=1/np.sqrt(n_in))
             self._layers.append(ActivatedLayer(linearLayer, sigmoid))
 
         self._loss = loss

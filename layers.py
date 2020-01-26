@@ -43,9 +43,9 @@ class LinearLayer1D:
         return ((self._n, 1), (0,0))
 
 class LinearLayer:
-    def __init__(self, n_in, n_out, bias=True):
-        self._w = np.random.randn(n_out, n_in)
-        self._b = np.random.randn(n_out, 1)
+    def __init__(self, n_in, n_out, bias=True, scale=1.0):
+        self._w = np.random.randn(n_out, n_in)*scale
+        self._b = np.random.randn(n_out, 1)*scale
         self._activation = None
 
     def __call__(self, x, *args, **kwargs):
