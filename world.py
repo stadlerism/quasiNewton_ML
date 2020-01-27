@@ -52,23 +52,26 @@ try:
         x = train_src[:,batch]
         target = train_dst[:,batch]
         if not optimizer is None:
-            try:
-                res = model.train_step_optimizer(x, target, optimizer)
-            except IterationCompleteException:
-                break
+            res = model.train_step_optimizer(x, target, optimizer)
         else:
             res = model.train_step(x, target)
         total_loss = loss(res, target)
+        if total_loss < 2.1e1:
+            break
         losses.append(total_loss)
         if args.visualize and i%(n_steps//5)==0:
             plot_world(shape, model, full, train_idxs, full_src, train_dst)
-except KeyboardInterrupt:
+except (KeyboardInterrupt,IterationCompleteException):
     pass
 
 
 # plot training progress
+plt.figure()
 plt.semilogy(losses)
 plt.show()
+plt.savefig("results/world/" + args.optimizer + "_losses_2.png")
 
 # plot training results
-plot_world(shape, model, full, train_idxs, full_src, train_dst)
+plot_world(shape, model, full, train_idxs, full_src, train_dst,
+    savename="results/world/" + args.optimizer + "_final_2" + ".png"
+)

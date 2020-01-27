@@ -22,7 +22,7 @@ np.random.seed(args.seed)
 # loss = L2Loss()
 loss = L2Loss()
 # model = LinearModel(widths=[2, 10, 100, 1000, 100, 10 ,2], lr=0.05, loss=loss)
-model = LinearModel(widths=[2,6,8,2], lr=0.05, loss=loss)
+model = LinearModel(widths=[2,8,8,2], lr=0.5, loss=loss)
 
 optimizer = None
 if args.optimizer == 'ibfgs':
@@ -61,24 +61,29 @@ try:
         x = train_src[:,batch]
         target = train_dst[:,batch]
         if not optimizer is None:
-            try:
-                res = model.train_step_optimizer(x, target, optimizer)
-            except IterationCompleteException:
-                break
+            res = model.train_step_optimizer(x, target, optimizer)
         else:
             res = model.train_step(x, target)
         total_loss = loss(res, target)
         losses.append(total_loss)
-        if args.visualize and i%(n_steps//5)==0:
-            plot_results(model, train_src, continuous=True)
+        if args.visualize and i%(n_steps//10)==0:
+            plot_results(model, train_src, continuous=True,
+                # savename="results/main/" + args.optimizer + "_" + str(i) + "_" + str(n_steps) + ".png"
+            )
 except (KeyboardInterrupt,IterationCompleteException):
     pass
 
-plot_results(model, train_src, continuous=True)
+plot_results(model, train_src, continuous=True,
+    # savename="results/main/" + args.optimizer + "_" + str(i) + "_" + str(n_steps) + ".png"
+)
 
 # plot training progress
+plt.figure()
 plt.semilogy(losses)
-plt.show()
+# plt.show()
+# plt.savefig("results/main/" + args.optimizer + "_losses.png")
 
 # plot training results
-plot_results(model, train_src)
+plot_results(model, train_src,
+    # savename="results/main/" + args.optimizer + "_final" + ".png"
+)
