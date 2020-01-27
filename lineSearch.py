@@ -72,18 +72,18 @@ def BarzilaiBorweinSearch(x, f, gf, d, lfx, gfx, loss, step_prev, gfx_prev, stra
 
     alpha = -1
     if strategy == 0:
-        sTs = np.dot(s.flatten(), s.flatten())
-        if np.abs(sTs) > 1e-30:
-            sTy = np.dot(s.flatten(), y.flatten())
-            alpha = sTy / sTs
-    else:
         sTy = np.dot(s.flatten(), y.flatten())
         if np.abs(sTy) > 1e-30:
-            yTy = np.dot(y.flatten(), y.flatten())
-            alpha = yTy / sTy
+            sTs = np.dot(s.flatten(), s.flatten())
+            alpha = sTs / sTy
+    else:
+        yTy = np.dot(y.flatten(), y.flatten())
+        if np.abs(yTy) > 1e-30:
+            sTy = np.dot(s.flatten(), y.flatten())
+            alpha = sTy / yTy
     
     if alpha > 0:
-        sigma = 1/alpha
+        sigma = alpha
     else:
         sigma = ArmijoSearch(x, f, gf, d, lfx, gfx, loss, beta=0.5, gamma=0.0001)
 
