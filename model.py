@@ -1,18 +1,18 @@
 import numpy as np
 
 from layers import LinearLayer, ActivatedLayer, LinearLayer1D
-from activation import Sigmoid, SoftMax, Identity
+from activation import Sigmoid, SoftMax, Identity, ReLU
 from loss import L2Loss
 
 class LinearModel:
     def __init__(self, widths=[2, 2, 3, 2], lr=0.05, loss=L2Loss()):
-        sigmoid = Sigmoid()
+        activation = Sigmoid()
         self._layers = []
         self._lr = lr
 
         for n_in, n_out in zip(widths[:-1], widths[1:]):
             linearLayer = LinearLayer(n_in, n_out, bias=True, scale=1/np.sqrt(n_in))
-            self._layers.append(ActivatedLayer(linearLayer, sigmoid))
+            self._layers.append(ActivatedLayer(linearLayer, activation))
 
         self._loss = loss
 

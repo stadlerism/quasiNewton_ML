@@ -61,7 +61,7 @@ try:
         total_loss = loss(res, target)
         losses.append(total_loss)
         # if args.visualize and i%(n_steps//5)==0:
-        #     plot_results(model, train_src, continuous=True)
+        #     plot_results(model, train_src, train_dst, continuous=True)
 except KeyboardInterrupt:
     pass
 
@@ -73,4 +73,4 @@ plt.semilogy(range(len(losses)), losses)
 plt.show()
 
 # plot training results
-# plot_results(model, train_src)
+# plot_results(model, train_src, train_dst)

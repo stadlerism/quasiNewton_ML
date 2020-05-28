@@ -76,7 +76,7 @@ class NewtonType(BaseOptimizer):
 
 class QuasiNewton(NewtonType):
     def get_dir(self, gfx):
-        if np.linalg.norm(gfx) < 1e-12:
+        if np.linalg.norm(gfx) < 1e-14:
             raise  IterationCompleteException()
         d = -np.linalg.solve(self._matrix, gfx)
         return d
@@ -84,7 +84,8 @@ class QuasiNewton(NewtonType):
 
 class InverseQuasiNewton(NewtonType):
     def get_dir(self, gfx):
-        if np.linalg.norm(gfx) < 1e-12:
+        if np.linalg.norm(gfx) < 1e-90:
+            print(np.max(np.abs(gfx)))
             raise  IterationCompleteException()
         d = -np.dot(self._matrix, gfx)
         return d
@@ -143,6 +144,8 @@ class InverseBFGS(InverseQuasiNewton):
                 ssT = np.dot(s, s.transpose())
                 self._matrix += (zsT+zsT.transpose())/sTy - zTy/(sTy**2)*ssT
         
+        ## TODO:
+            # Add for else branch
         self._d = None
         self._prev_gfx = gfx
 
@@ -184,3 +187,31 @@ class BFGS(QuasiNewton):
 
     def linesearch(self, x, f, gf, d, lfx, gfx, loss):
         return PowellWolfeSearch(x, f, gf, d, lfx, gfx, loss, gamma=self._gamma, eta=self._eta)
+
+class IBFGSBBv2(InverseBFGS):
+    def __init__(self, *args, **kwargs):
+        super(IBFGSBBv2, self).__init__(*args, **kwargs)
+        self._bb_prev_gfx = 0
+        self._bb_prev_step = None
+        self._i = 0
+
+    def linesearch(self, x, f, gf, d, lfx, gfx, loss, **kwargs):
+        # if self._i % 2 == 0:
+        #     strategy = 0
+        # else:
+        strategy = 1
+        
+        if self._bb_prev_step is None:
+            self._bb_prev_step = d
+
+        sigma = BarzilaiBorweinSearch(x, f, gf, d, lfx, gfx, loss, self._bb_prev_step, self._bb_prev_gfx, strategy=strategy, noArmijo=True)
+        # sigma *= 0.99**self._i
+        # sigma = 0.0001
+        # return PowellWolfeSearch(x, f, gf, d, lfx, gfx, loss, gamma=self._gamma, eta=self._eta)
+
+
+        self._bb_prev_gfx = gfx
+        self._bb_prev_step = -sigma*d
+        self._i += 1
+
+        return sigma

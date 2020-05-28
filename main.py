@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 from model import LinearModel
 from loss import L2Loss
-from optimizer import BFGS, InverseBFGS, DescentMethod, BarzilaiBorwein
+from optimizer import BFGS, InverseBFGS, DescentMethod, BarzilaiBorwein, IBFGSBBv2
 from exceptions import IterationCompleteException
 from utils import plot_results
 
@@ -37,6 +37,8 @@ elif args.optimizer == 'bbv2' or args.optimizer == 'barzilaiborweinv2':
     optimizer = BarzilaiBorwein(nparams=model.nparams, beta=1/2, gamma=0.0001, strategy='v2')
 elif args.optimizer == 'bbv3' or args.optimizer == 'barzilaiborweinv3':
     optimizer = BarzilaiBorwein(nparams=model.nparams, beta=1/2, gamma=0.0001, strategy='alt')
+elif args.optimizer == 'ibfgsbbv2':
+    optimizer = IBFGSBBv2(nparams=model.nparams, gamma=0.0001, eta=0.9)
 
 batch_size = args.batchsize
 n_steps = args.nsteps
@@ -66,24 +68,25 @@ try:
             res = model.train_step(x, target)
         total_loss = loss(res, target)
         losses.append(total_loss)
-        if args.visualize and i%(n_steps//10)==0:
-            plot_results(model, train_src, continuous=True,
+        if args.visualize and i%(n_steps//5)==0:
+            plot_results(model, train_src, train_dst, continuous=True,
                 # savename="results/main/" + args.optimizer + "_" + str(i) + "_" + str(n_steps) + ".png"
             )
 except (KeyboardInterrupt,IterationCompleteException):
     pass
 
-plot_results(model, train_src, continuous=True,
+plot_results(model, train_src, train_dst, continuous=True,
     # savename="results/main/" + args.optimizer + "_" + str(i) + "_" + str(n_steps) + ".png"
 )
+import pdb;pdb.set_trace()
 
 # plot training progress
 plt.figure()
 plt.semilogy(losses)
-# plt.show()
+plt.show()
 # plt.savefig("results/main/" + args.optimizer + "_losses.png")
 
 # plot training results
-plot_results(model, train_src,
+plot_results(model, train_src, train_dst,
     # savename="results/main/" + args.optimizer + "_final" + ".png"
 )

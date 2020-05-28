@@ -66,7 +66,7 @@ def PowellWolfeSearch(x, f, gf, d, lfx, gfx, loss, gamma=0.0001, eta=0.9):
     return sigma_min
 
     
-def BarzilaiBorweinSearch(x, f, gf, d, lfx, gfx, loss, step_prev, gfx_prev, strategy=0, beta=0.5, gamma=0.0001):
+def BarzilaiBorweinSearch(x, f, gf, d, lfx, gfx, loss, step_prev, gfx_prev, strategy=0, beta=0.5, gamma=0.0001, noArmijo=False):
     y = gfx - gfx_prev
     s = step_prev
 
@@ -85,7 +85,10 @@ def BarzilaiBorweinSearch(x, f, gf, d, lfx, gfx, loss, step_prev, gfx_prev, stra
     if alpha > 0:
         sigma = 1/alpha
     else:
-        sigma = ArmijoSearch(x, f, gf, d, lfx, gfx, loss, beta=0.5, gamma=0.0001)
+        if noArmijo:
+            sigma = -1/alpha
+        else:
+            sigma = ArmijoSearch(x, f, gf, d, lfx, gfx, loss, beta=0.5, gamma=0.0001)
 
     return sigma
 

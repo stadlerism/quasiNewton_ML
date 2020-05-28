@@ -5,9 +5,9 @@ from tqdm import tqdm
 
 from model import LinearModel
 from loss import L2Loss
-from optimizer import BFGS, InverseBFGS, DescentMethod, BarzilaiBorwein
+from optimizer import BFGS, InverseBFGS, DescentMethod, BarzilaiBorwein, IBFGSBBv2
 from exceptions import IterationCompleteException
-from utils import plot_results, load_world, plot_world
+from utils import load_world, plot_world
 
 parser = argparse.ArgumentParser(description='Example of a simple neural network.')
 parser.add_argument('--optimizer', '-o', default='backprop', help='Type of optimizer to use. Options: backprop, bfgs, ibfgs, armijo, bbv1, bbv2, bbv3 (default: %(default)s)')
@@ -35,6 +35,8 @@ elif args.optimizer == 'bbv2' or args.optimizer == 'barzilaiborweinv2':
     optimizer = BarzilaiBorwein(nparams=model.nparams, beta=1/2, gamma=0.0001, strategy='v2')
 elif args.optimizer == 'bbv3' or args.optimizer == 'barzilaiborweinv3':
     optimizer = BarzilaiBorwein(nparams=model.nparams, beta=1/2, gamma=0.0001, strategy='alt')
+elif args.optimizer == 'ibfgsbbv2':
+    optimizer = IBFGSBBv2(nparams=model.nparams, gamma=0.0001, eta=0.9)
 
 batch_size = args.batchsize
 n_steps = args.nsteps
@@ -56,7 +58,7 @@ try:
         else:
             res = model.train_step(x, target)
         total_loss = loss(res, target)
-        if total_loss < 2.1e1:
+        if total_loss < 3e1:
             break
         losses.append(total_loss)
         if args.visualize and i%(n_steps//5)==0:
@@ -64,14 +66,17 @@ try:
 except (KeyboardInterrupt,IterationCompleteException):
     pass
 
+print()
+print(total_loss)
+
 
 # plot training progress
 plt.figure()
 plt.semilogy(losses)
 plt.show()
-plt.savefig("results/world/" + args.optimizer + "_losses_2.png")
+# plt.savefig("results/world/" + args.optimizer + "_losses_2.png")
 
 # plot training results
 plot_world(shape, model, full, train_idxs, full_src, train_dst,
-    savename="results/world/" + args.optimizer + "_final_2" + ".png"
+    # savename="results/world/" + args.optimizer + "_final" + ".png"
 )

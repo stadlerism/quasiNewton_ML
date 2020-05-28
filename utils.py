@@ -12,7 +12,7 @@ world_cm = LinearSegmentedColormap.from_list(
     ]
 )
 
-def plot_results(model, train_src, continuous=False, savename=None):
+def plot_results(model, train_src, train_dst=None, continuous=False, savename=None):
     npoints = 1000
     xi = np.linspace(0,1,npoints)
     x1,x2 = np.meshgrid(xi, xi)
@@ -29,8 +29,8 @@ def plot_results(model, train_src, continuous=False, savename=None):
     plt.figure()
     plt.imshow(r.reshape((npoints, npoints)), extent=(0,1,1,0), interpolation='nearest', cmap=plt.get_cmap('cividis'))
     plt.colorbar()
-    plt.plot(train_src[0,5:10], train_src[1,5:10], marker='x', linestyle='')
-    plt.plot(train_src[0,0:5], train_src[1,0:5], marker='o', linestyle='')
+    plt.plot(train_src[0,train_dst[0,:]==0], train_src[1,train_dst[0,:]==0], marker='x', linestyle='')
+    plt.plot(train_src[0,train_dst[0,:]==1], train_src[1,train_dst[0,:]==1], marker='o', linestyle='')
     if savename is None:
         plt.show()
     else:
@@ -80,8 +80,8 @@ def plot_world(shape, model, full, idxs, full_grid, dst, savename=None):
 
     english_idx = idxs[dst[0,:] > 0]
     other_idx = idxs[dst[0,:] <= 0]
-    plt.plot(full_grid[0,english_idx]*shape[0], full_grid[1,english_idx]*shape[1], marker='x', linestyle='')
-    plt.plot(full_grid[0,other_idx]*shape[0], full_grid[1,other_idx]*shape[1], marker='.', linestyle='', markerfacecolor='none')
+    # plt.plot(full_grid[0,english_idx]*shape[0], full_grid[1,english_idx]*shape[1], marker='x', linestyle='')
+    # plt.plot(full_grid[0,other_idx]*shape[0], full_grid[1,other_idx]*shape[1], marker='.', linestyle='', markerfacecolor='none')
     if savename is None:
         plt.show()
     else:
