@@ -1,47 +1,5 @@
 import numpy as np
 
-class LinearLayer1D:
-    def __init__(self, n, d=None):
-        self._n = n
-        if d is None:
-            self._d = np.ones((n,1))#np.random.randn(n,1)
-        else:
-            self._d = d
-        self._activation = None
-
-    def __call__(self, x, *args, **kwargs):
-        return self.forward(x, *args, **kwargs)
-
-    @property
-    def nparams(self):
-        return self._n
-
-    def forward(self, x, sigma=None, dd=None, *args, **kwargs):
-        self._activation = x
-        if sigma is None:
-            d_tmp = self._d
-        else:
-            d_tmp = self._d + sigma*dd
-        nsamples = 1
-        if len(x.shape) == 2:
-            nsamples = x.shape[1]
-        return np.repeat(d_tmp, nsamples, axis=1) * x
-
-    def backprop(self, grad, get_grad=False):
-        new_grad = self._d * grad
-        d_grad = grad * self._activation
-        if not get_grad:
-            return new_grad
-        else:
-            return new_grad, (d_grad, np.zeros((0,0)))
-
-    def apply_update(self, dd, *args, **kwargs):
-        self._d += dd
-
-    @property
-    def shape(self):
-        return ((self._n, 1), (0,0))
-
 class LinearLayer:
     def __init__(self, n_in, n_out, bias=True, scale=1.0):
         self._w = np.random.randn(n_out, n_in)*scale
